@@ -25,23 +25,28 @@ public partial class InstallConfigStore : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    private static IDetectedAccount CreateInstallConfigStore(Match content)
+    private static IDetectedAccount CreateIDetectedAccount(Match content)
     {
         var match = Pattern().Match(content.Value);
         if (match.Success is false) return default;
 
-        var installConfigStore = new InstallConfigStore(match);
-        return installConfigStore;
+        var account = new InstallConfigStore(match);
+        return account;
     }
 
     public static Task<List<IDetectedAccount>> GetIDetectedAccounts(SteamClient steamClient)
     {
         var accounts = new List<IDetectedAccount>();
+        
+        if (steamClient.ConfigFile == default) return Task.FromResult(accounts);
+        
         if (LocationRecipient.TryReadFileContent(out var content, steamClient.ConfigFile.FullName) is false)
             return Task.FromResult(accounts);
+        
         var accountsSection = Regex.Match(content, "(?<=\"Accounts\".+?{).+765.+?}", RegexOptions.Singleline).Value;
         var matches = Regex.Matches(accountsSection, "\".+?\".+?{.+?}", RegexOptions.Singleline).Cast<Match>();
-        accounts.AddRange(matches.Select(CreateInstallConfigStore));
+        accounts.AddRange(matches.Select(CreateIDetectedAccount));
+        
         return Task.FromResult(accounts);
     }
 

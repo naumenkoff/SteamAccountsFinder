@@ -29,22 +29,26 @@ public partial class AppState : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    private static IDetectedAccount CreateAppState(FileInfo appmanifest)
+    private static IDetectedAccount CreateIDetectedAccount(FileInfo appmanifest)
     {
-        if (LocationRecipient.TryReadFileContent(out var content, appmanifest.FullName) is false) return default;
+        if (LocationRecipient.TryReadFileContent(out var content, appmanifest?.FullName) is false) return default;
 
         var match = Pattern().Match(content);
         if (match.Success is false) return default;
 
-        var appState = new AppState(appmanifest, match);
-        return appState;
+        var account = new AppState(appmanifest, match);
+        return account;
     }
 
     public static Task<List<IDetectedAccount>> GetIDetectedAccounts(DirectoryInfo steamApps)
     {
+        var accounts = new List<IDetectedAccount>();
+        if (steamApps == default) return Task.FromResult(accounts);
+        
         var files = steamApps.GetFiles();
-        var appStates = files.Select(CreateAppState).ToList();
-        return Task.FromResult(appStates);
+        accounts.AddRange(files.Select(CreateIDetectedAccount));
+        
+        return Task.FromResult(accounts);
     }
 
     [GeneratedRegex("\"name\".+?\"(?<name>.+?)\".+?\"LastOwner\".+?\"(?<ownerid>.+?)\"", RegexOptions.Singleline)]

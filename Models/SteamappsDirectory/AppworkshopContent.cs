@@ -29,22 +29,26 @@ public partial class AppWorkshop : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    private static IDetectedAccount CreateAppWorkshop(FileInfo appworkshop)
+    private static IDetectedAccount CreateIDetectedAccount(FileInfo appworkshop)
     {
         if (LocationRecipient.TryReadFileContent(out var content, appworkshop.FullName) is false) return default;
 
         var match = Pattern().Match(content);
         if (match.Success is false) return default;
 
-        var appWorkshop = new AppWorkshop(appworkshop, match);
-        return appWorkshop;
+        var account = new AppWorkshop(appworkshop, match);
+        return account;
     }
 
     public static Task<List<IDetectedAccount>> GetIDetectedAccounts(DirectoryInfo workshop)
     {
+        var accounts = new List<IDetectedAccount>();
+        if (workshop == default) return Task.FromResult(accounts);
+        
         var files = workshop.GetFiles();
-        var appWorkshops = files.Select(CreateAppWorkshop).ToList();
-        return Task.FromResult(appWorkshops);
+        accounts.AddRange(files.Select(CreateIDetectedAccount));
+        
+        return Task.FromResult(accounts);
     }
 
     [GeneratedRegex("\"appid\".+?\"(?<name>.+?)\".+?\"subscribedby\".+?\"(?<ownerid>.+?)\"", RegexOptions.Singleline)]

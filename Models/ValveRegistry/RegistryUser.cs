@@ -24,22 +24,22 @@ public class RegistryUsers : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    private static IDetectedAccount CreateRegistryUsers(string registryPath, string id)
+    private static IDetectedAccount CreateIDetectedAccount(string registryPath, string id)
     {
-        var registryUsers = new RegistryUsers(registryPath, id);
-        return registryUsers;
+        var account = new RegistryUsers(registryPath, id);
+        return account;
     }
 
     public static Task<List<IDetectedAccount>> GetIDetectedAccounts()
     {
         var accounts = new List<IDetectedAccount>();
-        using var registryKey = Registry.CurrentUser.OpenSubKey("Software")?.OpenSubKey("Valve")
-            ?.OpenSubKey("Steam")?.OpenSubKey("Users");
-        if (registryKey is null) return Task.FromResult(accounts);
+        
+        using var registryKey = Registry.CurrentUser.OpenSubKey("Software")?.OpenSubKey("Valve")?.OpenSubKey("Steam")?.OpenSubKey("Users");
+        if (registryKey == default) return Task.FromResult(accounts);
+        
         var users = registryKey.GetSubKeyNames();
-        accounts.AddRange(from user in users
-            let path = Path.Combine(registryKey.Name, user)
-            select CreateRegistryUsers(path, user));
+        accounts.AddRange(from user in users let path = Path.Combine(registryKey.Name, user) select CreateIDetectedAccount(path, user));
+        
         return Task.FromResult(accounts);
     }
 }

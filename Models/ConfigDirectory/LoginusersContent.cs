@@ -30,24 +30,27 @@ public partial class Loginusers : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    private static IDetectedAccount CreateLoginusers(Match content)
+    private static IDetectedAccount CreateIDetectedAccount(Match content)
     {
         var match = Pattern().Match(content.Value);
         if (match.Success is false) return default;
 
-        var loginusers = new Loginusers(match);
-        return loginusers;
+        var account = new Loginusers(match);
+        return account;
     }
 
     public static Task<List<IDetectedAccount>> GetIDetectedAccounts(SteamClient steamClient)
     {
         var accounts = new List<IDetectedAccount>();
 
+        if (steamClient.LoginusersFile == default) return Task.FromResult(accounts);
+
         if (LocationRecipient.TryReadFileContent(out var content, steamClient.LoginusersFile.FullName) is false)
             return Task.FromResult(accounts);
 
         var matches = Regex.Matches(content, ".\"765.+?\".+?{.+?}", RegexOptions.Singleline).Cast<Match>();
-        accounts.AddRange(matches.Select(CreateLoginusers));
+        accounts.AddRange(matches.Select(CreateIDetectedAccount));
+        
         return Task.FromResult(accounts);
     }
 

@@ -22,16 +22,20 @@ public class Userdata : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    private static IDetectedAccount CreateUserdata(DirectoryInfo directory)
+    private static IDetectedAccount CreateIDetectedAccount(DirectoryInfo directory)
     {
-        var userdata = new Userdata(directory);
-        return userdata;
+        var account = new Userdata(directory);
+        return account;
     }
 
     public static Task<List<IDetectedAccount>> GetIDetectedAccounts(SteamClient steamClient)
     {
-        var matches = steamClient.UserdataDirectory.GetDirectories();
-        var userdata = matches.Select(CreateUserdata).ToList();
-        return Task.FromResult(userdata);
+        var accounts = new List<IDetectedAccount>();
+        if (steamClient.UserdataDirectory == default) return Task.FromResult(accounts);
+        
+        var directories = steamClient.UserdataDirectory.GetDirectories();
+        accounts.AddRange(directories.Select(CreateIDetectedAccount));
+        
+        return Task.FromResult(accounts);
     }
 }

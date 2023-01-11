@@ -1,28 +1,29 @@
 ﻿using System.Text.RegularExpressions;
 using SteamAccountsFinder.Helpers;
 
-namespace SteamAccountsFinder.Models.Config;
+namespace SteamAccountsFinder.Models.ConfigDirectory;
 
 public partial class InstallConfigStore : ISteamID, IDetectedAccount
 {
     private InstallConfigStore(Match match)
     {
         Steam64 = long.Parse(match.Groups["id"].Value);
-        Steam32 = SteamDataConverter.GetSteam32(Steam64);
+        Steam32 = ISteamID.GetSteam32(Steam64);
         Login = match.Groups["login"].Value;
     }
 
     public string Login { get; }
-    public long Steam32 { get; }
-    public long Steam64 { get; }
 
     public void Attach()
     {
-        if (SteamDataConverter.IsSteam64(Steam64) is false) return;
-        
+        if (ISteamID.IsSteam64(Steam64) is false) return;
+
         var localAccount = LocalAccount.GetAccount(this);
         localAccount.AddInstallConfigStore(this);
     }
+
+    public long Steam32 { get; }
+    public long Steam64 { get; }
 
     public static IDetectedAccount CreateInstallConfigStore(Match content)
     {

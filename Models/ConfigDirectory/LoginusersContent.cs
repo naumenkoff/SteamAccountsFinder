@@ -1,14 +1,14 @@
 ﻿using System.Text.RegularExpressions;
 using SteamAccountsFinder.Helpers;
 
-namespace SteamAccountsFinder.Models.Config;
+namespace SteamAccountsFinder.Models.ConfigDirectory;
 
 public partial class Loginusers : ISteamID, IDetectedAccount
 {
     private Loginusers(Match match)
     {
         Steam64 = long.Parse(match.Groups["id"].Value);
-        Steam32 = SteamDataConverter.GetSteam32(Steam64);
+        Steam32 = ISteamID.GetSteam32(Steam64);
         Login = match.Groups["AccountName"].Value;
         Name = match.Groups["PersonaName"].Value;
         var time = long.Parse(match.Groups["Timestamp"].Value);
@@ -18,16 +18,17 @@ public partial class Loginusers : ISteamID, IDetectedAccount
     public string Login { get; }
     public string Name { get; }
     public DateTimeOffset Timestamp { get; }
-    public long Steam32 { get; }
-    public long Steam64 { get; }
 
     public void Attach()
     {
-        if (SteamDataConverter.IsSteam64(Steam64) is false) return;
-        
+        if (ISteamID.IsSteam64(Steam64) is false) return;
+
         var localAccount = LocalAccount.GetAccount(this);
         localAccount.AddLoginusers(this);
     }
+
+    public long Steam32 { get; }
+    public long Steam64 { get; }
 
     public static IDetectedAccount CreateLoginusers(Match content)
     {
@@ -41,7 +42,7 @@ public partial class Loginusers : ISteamID, IDetectedAccount
     public static Task<List<IDetectedAccount>> GetIDetectedAccounts(SteamClient steamClient)
     {
         var accounts = new List<IDetectedAccount>();
-        
+
         if (LocationRecipient.TryReadFileContent(out var content, steamClient.LoginusersFile.FullName) is false)
             return Task.FromResult(accounts);
 

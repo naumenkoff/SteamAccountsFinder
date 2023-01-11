@@ -2,5 +2,5 @@
 
 public interface IDetectedAccount
 {
-    
+    public void Attach();
 }

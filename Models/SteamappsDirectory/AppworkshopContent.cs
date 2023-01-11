@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using SteamAccountsFinder.Helpers;
 
-namespace SteamAccountsFinder.Models.Steamapps;
+namespace SteamAccountsFinder.Models.SteamappsDirectory;
 
 public partial class AppWorkshop : ISteamID, IDetectedAccount
 {
@@ -10,23 +10,24 @@ public partial class AppWorkshop : ISteamID, IDetectedAccount
         ContainingFile = appworkshop;
         AppID = int.Parse(match.Groups["name"].Value);
         Steam32 = long.Parse(match.Groups["ownerid"].Value);
-        Steam64 = SteamDataConverter.GetSteam64(Steam32);
-        if (SteamDataConverter.IsSteam64(Steam64)) HasSubscriber = true;
+        Steam64 = ISteamID.GetSteam64(Steam32);
+        HasSubscriber = true;
     }
 
     public bool HasSubscriber { get; }
     public FileInfo ContainingFile { get; }
     public int AppID { get; }
-    public long Steam32 { get; }
-    public long Steam64 { get; }
 
     public void Attach()
     {
-        if (SteamDataConverter.IsSteam64(Steam64) is false) return;
-        
+        if (ISteamID.IsSteam64(Steam64) is false) return;
+
         var localAccount = LocalAccount.GetAccount(this);
         localAccount.AddAppWorkshop(this);
     }
+
+    public long Steam32 { get; }
+    public long Steam64 { get; }
 
     public static IDetectedAccount CreateAppWorkshop(FileInfo appworkshop)
     {

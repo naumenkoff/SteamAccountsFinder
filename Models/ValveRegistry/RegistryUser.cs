@@ -1,4 +1,4 @@
-﻿using SteamAccountsFinder.Helpers;
+﻿using Microsoft.Win32;
 
 namespace SteamAccountsFinder.Models.ValveRegistry;
 
@@ -24,7 +24,7 @@ public class RegistryUsers : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    public static IDetectedAccount CreateRegistryUsers(string registryPath, string id)
+    private static IDetectedAccount CreateRegistryUsers(string registryPath, string id)
     {
         var registryUsers = new RegistryUsers(registryPath, id);
         return registryUsers;
@@ -33,7 +33,7 @@ public class RegistryUsers : ISteamID, IDetectedAccount
     public static Task<List<IDetectedAccount>> GetIDetectedAccounts()
     {
         var accounts = new List<IDetectedAccount>();
-        using var registryKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software")?.OpenSubKey("Valve")
+        using var registryKey = Registry.CurrentUser.OpenSubKey("Software")?.OpenSubKey("Valve")
             ?.OpenSubKey("Steam")?.OpenSubKey("Users");
         if (registryKey is null) return Task.FromResult(accounts);
         var users = registryKey.GetSubKeyNames();

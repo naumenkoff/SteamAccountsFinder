@@ -25,7 +25,7 @@ public partial class InstallConfigStore : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    public static IDetectedAccount CreateInstallConfigStore(Match content)
+    private static IDetectedAccount CreateInstallConfigStore(Match content)
     {
         var match = Pattern().Match(content.Value);
         if (match.Success is false) return default;

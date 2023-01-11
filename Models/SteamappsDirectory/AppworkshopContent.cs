@@ -29,7 +29,7 @@ public partial class AppWorkshop : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    public static IDetectedAccount CreateAppWorkshop(FileInfo appworkshop)
+    private static IDetectedAccount CreateAppWorkshop(FileInfo appworkshop)
     {
         if (LocationRecipient.TryReadFileContent(out var content, appworkshop.FullName) is false) return default;
 

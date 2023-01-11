@@ -2,10 +2,9 @@
 
 public interface ISteamID
 {
+    private const long MinimumSteam64Value = 76561197960265728;
     public long Steam32 { get; }
     public long Steam64 { get; }
-
-    private const long MinimumSteam64Value = 76561197960265728;
 
     public static long GetSteam64(long steam32)
     {

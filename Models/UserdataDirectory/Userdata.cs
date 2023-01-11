@@ -1,6 +1,4 @@
-﻿using SteamAccountsFinder.Helpers;
-
-namespace SteamAccountsFinder.Models.UserdataDirectory;
+﻿namespace SteamAccountsFinder.Models.UserdataDirectory;
 
 public class Userdata : ISteamID, IDetectedAccount
 {

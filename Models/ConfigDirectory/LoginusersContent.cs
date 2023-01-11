@@ -30,7 +30,7 @@ public partial class Loginusers : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    public static IDetectedAccount CreateLoginusers(Match content)
+    private static IDetectedAccount CreateLoginusers(Match content)
     {
         var match = Pattern().Match(content.Value);
         if (match.Success is false) return default;

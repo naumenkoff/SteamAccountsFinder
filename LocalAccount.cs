@@ -4,7 +4,6 @@ using SteamAccountsFinder.Models.SteamappsDirectory;
 using SteamAccountsFinder.Models.UserdataDirectory;
 using SteamAccountsFinder.Models.ValveRegistry;
 
-
 namespace SteamAccountsFinder;
 
 public class LocalAccount : ISteamID
@@ -23,7 +22,7 @@ public class LocalAccount : ISteamID
         _dataFromUserdata = new List<Userdata>();
     }
 
-    public static IReadOnlyCollection<LocalAccount> Accounts => Container;
+    public static IEnumerable<LocalAccount> Accounts => Container;
     public IReadOnlyCollection<AppState> DataFromAppmanifest => _dataFromAppmanifest;
     public IReadOnlyCollection<AppWorkshop> DataFromAppWorkshop => _dataFromAppworkshop;
     public IReadOnlyCollection<Userdata> DataFromUserdata => _dataFromUserdata;

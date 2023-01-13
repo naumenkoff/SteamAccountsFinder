@@ -39,18 +39,15 @@ public partial class LoginusersContent : ISteamID, IDetectedAccount
         return account;
     }
 
-    public static Task<List<IDetectedAccount>> GetIDetectedAccounts(SteamClient steamClient)
+    public static Task<IDetectedAccount[]> GetIDetectedAccounts(SteamClient steamClient)
     {
-        var accounts = new List<IDetectedAccount>();
-
-        if (steamClient.LoginusersFile == default) return Task.FromResult(accounts);
-        if (steamClient.LoginusersFile.Exists is false) return Task.FromResult(accounts);
-        if (LocationRecipient.TryReadFileContent(out var content, steamClient.LoginusersFile.FullName) is false)
-            return Task.FromResult(accounts);
+        if (LocationRecipient.FileExists(steamClient.LoginusersFile) is false)
+            return Task.FromResult(Array.Empty<IDetectedAccount>());
+        if (LocationRecipient.TryReadFileContent(out var content, steamClient.LoginusersFile) is false)
+            return Task.FromResult(Array.Empty<IDetectedAccount>());
 
         var matches = Regex.Matches(content, ".\"765.+?\".+?{.+?}", RegexOptions.Singleline).Cast<Match>();
-        accounts.AddRange(matches.Select(CreateIDetectedAccount));
-
+        var accounts = matches.Select(CreateIDetectedAccount).ToArray();
         return Task.FromResult(accounts);
     }
 

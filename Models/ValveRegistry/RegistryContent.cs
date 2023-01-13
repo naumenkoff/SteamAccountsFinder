@@ -30,19 +30,17 @@ public class RegistryContent : ISteamID, IDetectedAccount
         return account;
     }
 
-    public static Task<List<IDetectedAccount>> GetIDetectedAccounts()
+    public static Task<IDetectedAccount[]> GetIDetectedAccounts()
     {
-        var accounts = new List<IDetectedAccount>();
-
         using var registryKey = Registry.CurrentUser.OpenSubKey("Software")?.OpenSubKey("Valve")?.OpenSubKey("Steam")
             ?.OpenSubKey("Users");
-        if (registryKey == default) return Task.FromResult(accounts);
+        if (registryKey == default) return Task.FromResult(Array.Empty<IDetectedAccount>());
 
         var users = registryKey.GetSubKeyNames();
-        accounts.AddRange(from user in users
-            let path = Path.Combine(registryKey.Name, user)
-            select CreateIDetectedAccount(path, user));
-
+        var accounts =
+            (from user in users
+                let path = Path.Combine(registryKey.Name, user)
+                select CreateIDetectedAccount(path, user)).ToArray();
         return Task.FromResult(accounts);
     }
 }

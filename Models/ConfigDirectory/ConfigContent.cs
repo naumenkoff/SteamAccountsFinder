@@ -34,19 +34,16 @@ public partial class ConfigContent : ISteamID, IDetectedAccount
         return account;
     }
 
-    public static Task<List<IDetectedAccount>> GetIDetectedAccounts(SteamClient steamClient)
+    public static Task<IDetectedAccount[]> GetIDetectedAccounts(SteamClient steamClient)
     {
-        var accounts = new List<IDetectedAccount>();
-
-        if (steamClient.ConfigFile == default) return Task.FromResult(accounts);
-        if (steamClient.ConfigFile.Exists is false) return Task.FromResult(accounts);
-        if (LocationRecipient.TryReadFileContent(out var content, steamClient.ConfigFile.FullName) is false)
-            return Task.FromResult(accounts);
+        if (LocationRecipient.FileExists(steamClient.ConfigFile) is false)
+            return Task.FromResult(Array.Empty<IDetectedAccount>());
+        if (LocationRecipient.TryReadFileContent(out var content, steamClient.ConfigFile) is false)
+            return Task.FromResult(Array.Empty<IDetectedAccount>());
 
         var accountsSection = Regex.Match(content, "(?<=\"Accounts\".+?{).+765.+?}", RegexOptions.Singleline).Value;
         var matches = Regex.Matches(accountsSection, "\".+?\".+?{.+?}", RegexOptions.Singleline).Cast<Match>();
-        accounts.AddRange(matches.Select(CreateIDetectedAccount));
-
+        var accounts = matches.Select(CreateIDetectedAccount).ToArray();
         return Task.FromResult(accounts);
     }
 

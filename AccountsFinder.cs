@@ -16,38 +16,35 @@ public class AccountsFinder
         _steamClient = steamClient;
     }
 
-    private async Task<List<IDetectedAccount>> ScanSteamLibraries()
+    private async Task<IDetectedAccount[]> ScanSteamLibraries()
     {
         var accounts = new List<IDetectedAccount>();
-        if (_steamClient.SteamLibraries == default) return accounts;
 
         foreach (var library in _steamClient.SteamLibraries)
         {
-            var steamappsDirectory = SteamClient.GetSteamappsDirectory(library.FullName);
+            var steamappsDirectory = SteamClient.GetSteamappsDirectory(library);
             var appmanifestAccounts = await AppmanifestContent.GetIDetectedAccounts(steamappsDirectory);
-            var workshopDirectory = SteamClient.GetWorkshopDirectory(steamappsDirectory.FullName);
+            var workshopDirectory = SteamClient.GetWorkshopDirectory(steamappsDirectory);
             var appworkshopAccounts = await AppworkshopContent.GetIDetectedAccounts(workshopDirectory);
             accounts.AddRange(appmanifestAccounts);
             accounts.AddRange(appworkshopAccounts);
         }
 
-        return accounts;
+        return accounts.ToArray();
     }
 
     public async Task InitializeAccounts()
     {
         var start = Stopwatch.GetTimestamp();
-        var task = await Task.WhenAll(ConfigContent.GetIDetectedAccounts(_steamClient),
-            LoginusersContent.GetIDetectedAccounts(_steamClient),
-            RegistryContent.GetIDetectedAccounts(),
-            UserdataContent.GetIDetectedAccounts(_steamClient),
-            ScanSteamLibraries());
 
-        foreach (var collection in task)
-        foreach (var account in collection)
-            account?.Attach();
+        var result = await Task.WhenAll(ConfigContent.GetIDetectedAccounts(_steamClient),
+            LoginusersContent.GetIDetectedAccounts(_steamClient), RegistryContent.GetIDetectedAccounts(),
+            UserdataContent.GetIDetectedAccounts(_steamClient), ScanSteamLibraries());
 
-        Console.WriteLine(
-            $"Local Accounts were initialized for {(Stopwatch.GetTimestamp() - start) / 10000f / 1000f:F} sec.");
+        foreach (var detectedAccounts in result)
+        foreach (var detectedAccount in detectedAccounts)
+            detectedAccount?.Attach();
+
+        Console.WriteLine($"Loading time of Local Accounts: {Stopwatch.GetElapsedTime(start).TotalMilliseconds:F} ms.");
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace SteamAccountsFinder.Models.UserdataDirectory;
+﻿using SteamAccountsFinder.Helpers;
+
+namespace SteamAccountsFinder.Models.UserdataDirectory;
 
 public class UserdataContent : ISteamID, IDetectedAccount
 {
@@ -28,16 +30,13 @@ public class UserdataContent : ISteamID, IDetectedAccount
         return account;
     }
 
-    public static Task<List<IDetectedAccount>> GetIDetectedAccounts(SteamClient steamClient)
+    public static Task<IDetectedAccount[]> GetIDetectedAccounts(SteamClient steamClient)
     {
-        var accounts = new List<IDetectedAccount>();
-
-        if (steamClient.UserdataDirectory == default) return Task.FromResult(accounts);
-        if (steamClient.UserdataDirectory.Exists is false) return Task.FromResult(accounts);
+        if (LocationRecipient.DirectoryExists(steamClient.UserdataDirectory) is false)
+            return Task.FromResult(Array.Empty<IDetectedAccount>());
 
         var directories = steamClient.UserdataDirectory.GetDirectories();
-        accounts.AddRange(directories.Select(CreateIDetectedAccount));
-
+        var accounts = directories.Select(CreateIDetectedAccount).ToArray();
         return Task.FromResult(accounts);
     }
 }

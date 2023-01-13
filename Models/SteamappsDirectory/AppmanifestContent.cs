@@ -31,7 +31,7 @@ public partial class AppmanifestContent : ISteamID, IDetectedAccount
 
     private static IDetectedAccount CreateIDetectedAccount(FileInfo appmanifest)
     {
-        if (LocationRecipient.TryReadFileContent(out var content, appmanifest.FullName) is false) return default;
+        if (LocationRecipient.TryReadFileContent(out var content, appmanifest) is false) return default;
 
         var match = Pattern().Match(content);
         if (match.Success is false) return default;
@@ -40,16 +40,13 @@ public partial class AppmanifestContent : ISteamID, IDetectedAccount
         return account;
     }
 
-    public static Task<List<IDetectedAccount>> GetIDetectedAccounts(DirectoryInfo steamApps)
+    public static Task<IDetectedAccount[]> GetIDetectedAccounts(DirectoryInfo steamApps)
     {
-        var accounts = new List<IDetectedAccount>();
-        
-        if (steamApps == default) return Task.FromResult(accounts);
-        if (steamApps.Exists is false) return Task.FromResult(accounts);
+        if (LocationRecipient.DirectoryExists(steamApps) is false)
+            return Task.FromResult(Array.Empty<IDetectedAccount>());
 
         var files = steamApps.GetFiles();
-        accounts.AddRange(files.Select(CreateIDetectedAccount));
-
+        var accounts = files.Select(CreateIDetectedAccount).ToArray();
         return Task.FromResult(accounts);
     }
 

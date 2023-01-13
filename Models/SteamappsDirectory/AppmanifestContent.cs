@@ -3,9 +3,9 @@ using SteamAccountsFinder.Helpers;
 
 namespace SteamAccountsFinder.Models.SteamappsDirectory;
 
-public partial class AppState : ISteamID, IDetectedAccount
+public partial class AppmanifestContent : ISteamID, IDetectedAccount
 {
-    private AppState(FileInfo appmanifest, Match match)
+    private AppmanifestContent(FileInfo appmanifest, Match match)
     {
         ContainingFile = appmanifest;
         Name = match.Groups["name"].Value;
@@ -23,7 +23,7 @@ public partial class AppState : ISteamID, IDetectedAccount
         if (ISteamID.IsSteam64(Steam64) is false) return;
 
         var localAccount = LocalAccount.GetAccount(this);
-        localAccount.AddAppState(this);
+        localAccount.Attach(this);
     }
 
     public long Steam32 { get; }
@@ -36,7 +36,7 @@ public partial class AppState : ISteamID, IDetectedAccount
         var match = Pattern().Match(content);
         if (match.Success is false) return default;
 
-        var account = new AppState(appmanifest, match);
+        var account = new AppmanifestContent(appmanifest, match);
         return account;
     }
 
@@ -44,10 +44,10 @@ public partial class AppState : ISteamID, IDetectedAccount
     {
         var accounts = new List<IDetectedAccount>();
         if (steamApps == default) return Task.FromResult(accounts);
-        
+
         var files = steamApps.GetFiles();
         accounts.AddRange(files.Select(CreateIDetectedAccount));
-        
+
         return Task.FromResult(accounts);
     }
 

@@ -3,9 +3,9 @@ using SteamAccountsFinder.Helpers;
 
 namespace SteamAccountsFinder.Models.SteamappsDirectory;
 
-public partial class AppWorkshop : ISteamID, IDetectedAccount
+public partial class AppworkshopContent : ISteamID, IDetectedAccount
 {
-    private AppWorkshop(FileInfo appworkshop, Match match)
+    private AppworkshopContent(FileInfo appworkshop, Match match)
     {
         ContainingFile = appworkshop;
         AppID = int.Parse(match.Groups["name"].Value);
@@ -23,7 +23,7 @@ public partial class AppWorkshop : ISteamID, IDetectedAccount
         if (ISteamID.IsSteam64(Steam64) is false) return;
 
         var localAccount = LocalAccount.GetAccount(this);
-        localAccount.AddAppWorkshop(this);
+        localAccount.Attach(this);
     }
 
     public long Steam32 { get; }
@@ -36,7 +36,7 @@ public partial class AppWorkshop : ISteamID, IDetectedAccount
         var match = Pattern().Match(content);
         if (match.Success is false) return default;
 
-        var account = new AppWorkshop(appworkshop, match);
+        var account = new AppworkshopContent(appworkshop, match);
         return account;
     }
 
@@ -44,10 +44,10 @@ public partial class AppWorkshop : ISteamID, IDetectedAccount
     {
         var accounts = new List<IDetectedAccount>();
         if (workshop == default) return Task.FromResult(accounts);
-        
+
         var files = workshop.GetFiles();
         accounts.AddRange(files.Select(CreateIDetectedAccount));
-        
+
         return Task.FromResult(accounts);
     }
 

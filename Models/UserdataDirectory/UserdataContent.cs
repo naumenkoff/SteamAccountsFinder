@@ -1,8 +1,8 @@
 ﻿namespace SteamAccountsFinder.Models.UserdataDirectory;
 
-public class Userdata : ISteamID, IDetectedAccount
+public class UserdataContent : ISteamID, IDetectedAccount
 {
-    private Userdata(DirectoryInfo directory)
+    private UserdataContent(DirectoryInfo directory)
     {
         Steam32 = long.Parse(directory.Name);
         Steam64 = ISteamID.GetSteam64(Steam32);
@@ -16,7 +16,7 @@ public class Userdata : ISteamID, IDetectedAccount
         if (ISteamID.IsSteam64(Steam64) is false) return;
 
         var localAccount = LocalAccount.GetAccount(this);
-        localAccount.AddUserdata(this);
+        localAccount.Attach(this);
     }
 
     public long Steam32 { get; }
@@ -24,7 +24,7 @@ public class Userdata : ISteamID, IDetectedAccount
 
     private static IDetectedAccount CreateIDetectedAccount(DirectoryInfo directory)
     {
-        var account = new Userdata(directory);
+        var account = new UserdataContent(directory);
         return account;
     }
 
@@ -32,10 +32,10 @@ public class Userdata : ISteamID, IDetectedAccount
     {
         var accounts = new List<IDetectedAccount>();
         if (steamClient.UserdataDirectory == default) return Task.FromResult(accounts);
-        
+
         var directories = steamClient.UserdataDirectory.GetDirectories();
         accounts.AddRange(directories.Select(CreateIDetectedAccount));
-        
+
         return Task.FromResult(accounts);
     }
 }

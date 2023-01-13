@@ -3,9 +3,9 @@ using SteamAccountsFinder.Helpers;
 
 namespace SteamAccountsFinder.Models.ConfigDirectory;
 
-public partial class Loginusers : ISteamID, IDetectedAccount
+public partial class LoginusersContent : ISteamID, IDetectedAccount
 {
-    private Loginusers(Match match)
+    private LoginusersContent(Match match)
     {
         Steam64 = long.Parse(match.Groups["id"].Value);
         Steam32 = ISteamID.GetSteam32(Steam64);
@@ -24,7 +24,7 @@ public partial class Loginusers : ISteamID, IDetectedAccount
         if (ISteamID.IsSteam64(Steam64) is false) return;
 
         var localAccount = LocalAccount.GetAccount(this);
-        localAccount.AddLoginusers(this);
+        localAccount.Attach(this);
     }
 
     public long Steam32 { get; }
@@ -35,7 +35,7 @@ public partial class Loginusers : ISteamID, IDetectedAccount
         var match = Pattern().Match(content.Value);
         if (match.Success is false) return default;
 
-        var account = new Loginusers(match);
+        var account = new LoginusersContent(match);
         return account;
     }
 
@@ -50,7 +50,7 @@ public partial class Loginusers : ISteamID, IDetectedAccount
 
         var matches = Regex.Matches(content, ".\"765.+?\".+?{.+?}", RegexOptions.Singleline).Cast<Match>();
         accounts.AddRange(matches.Select(CreateIDetectedAccount));
-        
+
         return Task.FromResult(accounts);
     }
 

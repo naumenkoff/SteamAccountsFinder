@@ -9,80 +9,59 @@ namespace SteamAccountsFinder;
 public class LocalAccount : ISteamID
 {
     private static readonly List<LocalAccount> Container = new();
-    private readonly List<AppState> _dataFromAppmanifest;
-    private readonly List<AppWorkshop> _dataFromAppworkshop;
-    private readonly List<Userdata> _dataFromUserdata;
+    private readonly List<AppmanifestContent> _dataFromAppmanifest;
+    private readonly List<AppworkshopContent> _dataFromAppworkshop;
+    private readonly List<UserdataContent> _dataFromUserdata;
 
     private LocalAccount(ISteamID steamData)
     {
         Steam32 = steamData.Steam32;
         Steam64 = steamData.Steam64;
-        _dataFromAppmanifest = new List<AppState>();
-        _dataFromAppworkshop = new List<AppWorkshop>();
-        _dataFromUserdata = new List<Userdata>();
+        _dataFromAppmanifest = new List<AppmanifestContent>();
+        _dataFromAppworkshop = new List<AppworkshopContent>();
+        _dataFromUserdata = new List<UserdataContent>();
     }
 
     public static IEnumerable<LocalAccount> Accounts => Container;
-    public IReadOnlyCollection<AppState> DataFromAppmanifest => _dataFromAppmanifest;
-    public IReadOnlyCollection<AppWorkshop> DataFromAppWorkshop => _dataFromAppworkshop;
-    public IReadOnlyCollection<Userdata> DataFromUserdata => _dataFromUserdata;
-    public InstallConfigStore DataFromConfig { get; private set; }
-    public Loginusers DataFromLoginusers { get; private set; }
-    public RegistryUsers DataFromRegistry { get; private set; }
-    public int NumberOfDublicates { get; private set; }
+    public IReadOnlyCollection<AppmanifestContent> DataFromAppmanifest => _dataFromAppmanifest;
+    public IReadOnlyCollection<AppworkshopContent> DataFromAppWorkshop => _dataFromAppworkshop;
+    public IReadOnlyCollection<UserdataContent> DataFromUserdata => _dataFromUserdata;
+    public ConfigContent DataFromConfig { get; private set; }
+    public LoginusersContent DataFromLoginusersContent { get; private set; }
+    public RegistryContent DataFromRegistry { get; private set; }
+    public int DetectionsCount { get; private set; }
     public string Login => GetLogin();
     public long Steam32 { get; }
     public long Steam64 { get; }
 
     public static LocalAccount GetAccount(ISteamID steamData)
     {
-        var account = Container.ToList()
-            .FirstOrDefault(x => x.Steam32 == steamData.Steam32 && x.Steam64 == steamData.Steam64);
-        if (account != default)
-        {
-            account.NumberOfDublicates++;
-            return account;
-        }
+        var account = Container.FirstOrDefault(x => ISteamID.IsMatch(x, steamData));
+        if (account != default) return account;
 
         account = new LocalAccount(steamData);
         Container.Add(account);
         return account;
     }
 
-    public void AddAppState(AppState appState)
+    public void Attach(IDetectedAccount account)
     {
-        _dataFromAppmanifest.Add(appState);
-    }
+        var type = account.GetType();
 
-    public void AddAppWorkshop(AppWorkshop appWorkshop)
-    {
-        _dataFromAppworkshop.Add(appWorkshop);
-    }
+        if (type == typeof(ConfigContent)) DataFromConfig = account as ConfigContent;
+        else if (type == typeof(LoginusersContent)) DataFromLoginusersContent = account as LoginusersContent;
+        else if (type == typeof(AppmanifestContent)) _dataFromAppmanifest.Add(account as AppmanifestContent);
+        else if (type == typeof(AppworkshopContent)) _dataFromAppworkshop.Add(account as AppworkshopContent);
+        else if (type == typeof(UserdataContent)) _dataFromUserdata.Add(account as UserdataContent);
+        else if (type == typeof(RegistryContent)) DataFromRegistry = account as RegistryContent;
 
-    public void AddUserdata(Userdata userdata)
-    {
-        _dataFromUserdata.Add(userdata);
-    }
-
-    public void AddInstallConfigStore(InstallConfigStore installConfigStore)
-    {
-        DataFromConfig = installConfigStore;
-    }
-
-    public void AddLoginusers(Loginusers loginusers)
-    {
-        DataFromLoginusers = loginusers;
-    }
-
-    public void AddRegistryUsers(RegistryUsers registryUsers)
-    {
-        DataFromRegistry = registryUsers;
+        DetectionsCount++;
     }
 
     private string GetLogin()
     {
-        return DataFromConfig?.Login == DataFromLoginusers?.Login
+        return DataFromConfig?.Login == DataFromLoginusersContent?.Login
             ? DataFromConfig?.Login
-            : $"{DataFromConfig?.Login} | {DataFromLoginusers?.Login}";
+            : $"{DataFromConfig?.Login} | {DataFromLoginusersContent?.Login}";
     }
 }

@@ -6,6 +6,11 @@ public interface ISteamID
     public long Steam32 { get; }
     public long Steam64 { get; }
 
+    public static bool IsMatch(ISteamID first, ISteamID second)
+    {
+        return first.Steam32 == second.Steam32 && first.Steam64 == second.Steam64;
+    }
+
     public static long GetSteam64(long steam32)
     {
         if (IsSteam64(steam32)) return steam32;

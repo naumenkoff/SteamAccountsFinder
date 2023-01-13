@@ -21,12 +21,12 @@ public class AccountsFinder
         var accounts = new List<IDetectedAccount>();
         foreach (var library in _steamClient.SteamLibraries)
         {
-            var steamApps = SteamClient.GetSteamappsDirectory(library.FullName);
-            var appstates = await AppState.GetIDetectedAccounts(steamApps);
-            var workshop = SteamClient.GetWorkshopDirectory(steamApps.FullName);
-            var appworkshops = await AppWorkshop.GetIDetectedAccounts(workshop);
-            accounts.AddRange(appstates);
-            accounts.AddRange(appworkshops);
+            var steamappsDirectory = SteamClient.GetSteamappsDirectory(library.FullName);
+            var appmanifestAccounts = await AppmanifestContent.GetIDetectedAccounts(steamappsDirectory);
+            var workshopDirectory = SteamClient.GetWorkshopDirectory(steamappsDirectory.FullName);
+            var appworkshopAccounts = await AppworkshopContent.GetIDetectedAccounts(workshopDirectory);
+            accounts.AddRange(appmanifestAccounts);
+            accounts.AddRange(appworkshopAccounts);
         }
 
         return accounts;
@@ -35,10 +35,10 @@ public class AccountsFinder
     public async Task InitializeAccounts()
     {
         var start = Stopwatch.GetTimestamp();
-        var task = await Task.WhenAll(InstallConfigStore.GetIDetectedAccounts(_steamClient),
-            Loginusers.GetIDetectedAccounts(_steamClient),
-            RegistryUsers.GetIDetectedAccounts(),
-            Userdata.GetIDetectedAccounts(_steamClient),
+        var task = await Task.WhenAll(ConfigContent.GetIDetectedAccounts(_steamClient),
+            LoginusersContent.GetIDetectedAccounts(_steamClient),
+            RegistryContent.GetIDetectedAccounts(),
+            UserdataContent.GetIDetectedAccounts(_steamClient),
             ScanSteamLibraries());
 
         foreach (var collection in task)

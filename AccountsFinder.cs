@@ -19,6 +19,8 @@ public class AccountsFinder
     private async Task<List<IDetectedAccount>> ScanSteamLibraries()
     {
         var accounts = new List<IDetectedAccount>();
+        if (_steamClient.SteamLibraries == default) return accounts;
+
         foreach (var library in _steamClient.SteamLibraries)
         {
             var steamappsDirectory = SteamClient.GetSteamappsDirectory(library.FullName);

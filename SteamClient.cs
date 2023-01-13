@@ -15,7 +15,6 @@ public class SteamClient
 
         UserdataDirectory = LocationRecipient.GetDirectory(InstallationDirectory.FullName, "userdata");
         ConfigDirectory = LocationRecipient.GetDirectory(InstallationDirectory.FullName, "config");
-        UserdataDirectory = LocationRecipient.GetDirectory(InstallationDirectory.FullName, "userdata");
         LoginusersFile = LocationRecipient.GetFile(ConfigDirectory.FullName, "loginusers.vdf");
         ConfigFile = LocationRecipient.GetFile(ConfigDirectory.FullName, "config.vdf");
     }
@@ -81,6 +80,9 @@ public class SteamClient
 
     private FileInfo GetLibraryfoldersFile()
     {
+        if (SteamappsDirectory == default) return default;
+        if (SteamappsDirectory.Exists is false) return default;
+
         var files = SteamappsDirectory?.GetFiles();
         return files?.FirstOrDefault(file => file.Name == "libraryfolders.vdf");
     }
@@ -88,10 +90,8 @@ public class SteamClient
     private DirectoryInfo[] GetSteamLibraries()
     {
         if (LibraryfoldersFile == default) return Array.Empty<DirectoryInfo>();
-
         var fileContent = File.ReadAllText(LibraryfoldersFile.FullName);
         var libraries = Regex.Matches(fileContent, "\"path\".+\"(.+?)\"").Select(x => x.Groups[1].Value);
-
         return libraries.Select(x => new DirectoryInfo(x)).Where(x => x.Exists).ToArray();
     }
 }

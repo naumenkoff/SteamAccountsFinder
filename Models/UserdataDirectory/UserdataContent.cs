@@ -31,7 +31,9 @@ public class UserdataContent : ISteamID, IDetectedAccount
     public static Task<List<IDetectedAccount>> GetIDetectedAccounts(SteamClient steamClient)
     {
         var accounts = new List<IDetectedAccount>();
+
         if (steamClient.UserdataDirectory == default) return Task.FromResult(accounts);
+        if (steamClient.UserdataDirectory.Exists is false) return Task.FromResult(accounts);
 
         var directories = steamClient.UserdataDirectory.GetDirectories();
         accounts.AddRange(directories.Select(CreateIDetectedAccount));

@@ -44,7 +44,7 @@ public partial class LoginusersContent : ISteamID, IDetectedAccount
         var accounts = new List<IDetectedAccount>();
 
         if (steamClient.LoginusersFile == default) return Task.FromResult(accounts);
-
+        if (steamClient.LoginusersFile.Exists is false) return Task.FromResult(accounts);
         if (LocationRecipient.TryReadFileContent(out var content, steamClient.LoginusersFile.FullName) is false)
             return Task.FromResult(accounts);
 

@@ -39,7 +39,7 @@ public partial class ConfigContent : ISteamID, IDetectedAccount
         var accounts = new List<IDetectedAccount>();
 
         if (steamClient.ConfigFile == default) return Task.FromResult(accounts);
-
+        if (steamClient.ConfigFile.Exists is false) return Task.FromResult(accounts);
         if (LocationRecipient.TryReadFileContent(out var content, steamClient.ConfigFile.FullName) is false)
             return Task.FromResult(accounts);
 

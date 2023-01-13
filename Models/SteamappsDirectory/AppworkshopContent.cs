@@ -43,7 +43,9 @@ public partial class AppworkshopContent : ISteamID, IDetectedAccount
     public static Task<List<IDetectedAccount>> GetIDetectedAccounts(DirectoryInfo workshop)
     {
         var accounts = new List<IDetectedAccount>();
+        
         if (workshop == default) return Task.FromResult(accounts);
+        if (workshop.Exists is false) return Task.FromResult(accounts);
 
         var files = workshop.GetFiles();
         accounts.AddRange(files.Select(CreateIDetectedAccount));

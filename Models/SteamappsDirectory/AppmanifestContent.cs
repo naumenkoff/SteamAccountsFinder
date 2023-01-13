@@ -5,7 +5,11 @@ namespace SteamAccountsFinder.Models.SteamappsDirectory;
 
 public partial class AppmanifestContent : ISteamID, IDetectedAccount
 {
-    private AppmanifestContent(FileInfo appmanifest, Match match)
+    public readonly FileSystemInfo ContainingFile;
+    public readonly bool HasLastOwner;
+    public readonly string Name;
+
+    private AppmanifestContent(FileSystemInfo appmanifest, Match match)
     {
         ContainingFile = appmanifest;
         Name = match.Groups["name"].Value;
@@ -13,10 +17,6 @@ public partial class AppmanifestContent : ISteamID, IDetectedAccount
         Steam32 = ISteamID.GetSteam32(Steam64);
         HasLastOwner = true;
     }
-
-    public FileInfo ContainingFile { get; }
-    public string Name { get; }
-    public bool HasLastOwner { get; }
 
     public void Attach()
     {
@@ -29,7 +29,7 @@ public partial class AppmanifestContent : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    private static IDetectedAccount CreateIDetectedAccount(FileInfo appmanifest)
+    private static IDetectedAccount CreateIDetectedAccount(FileSystemInfo appmanifest)
     {
         if (LocationRecipient.TryReadFileContent(out var content, appmanifest) is false) return default;
 

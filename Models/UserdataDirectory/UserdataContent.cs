@@ -4,14 +4,14 @@ namespace SteamAccountsFinder.Models.UserdataDirectory;
 
 public class UserdataContent : ISteamID, IDetectedAccount
 {
-    private UserdataContent(DirectoryInfo directory)
+    public readonly FileSystemInfo ContainingDirectory;
+
+    private UserdataContent(FileSystemInfo directory)
     {
         Steam32 = long.Parse(directory.Name);
         Steam64 = ISteamID.GetSteam64(Steam32);
         ContainingDirectory = directory;
     }
-
-    public DirectoryInfo ContainingDirectory { get; }
 
     public void Attach()
     {
@@ -24,7 +24,7 @@ public class UserdataContent : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    private static IDetectedAccount CreateIDetectedAccount(DirectoryInfo directory)
+    private static IDetectedAccount CreateIDetectedAccount(FileSystemInfo directory)
     {
         var account = new UserdataContent(directory);
         return account;

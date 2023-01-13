@@ -8,6 +8,10 @@ public class SteamClient
 {
     private readonly FileSystemInfo _libraryfoldersFile;
     private readonly FileSystemInfo _steamappsDirectory;
+    public readonly FileSystemInfo ConfigFile;
+    public readonly FileSystemInfo LoginusersFile;
+    public readonly FileSystemInfo[] SteamLibraries;
+    public readonly DirectoryInfo UserdataDirectory;
 
     public SteamClient()
     {
@@ -21,11 +25,6 @@ public class SteamClient
         LoginusersFile = LocationRecipient.GetFile(configDirectory.FullName, "loginusers.vdf");
         ConfigFile = LocationRecipient.GetFile(configDirectory.FullName, "config.vdf");
     }
-
-    public FileSystemInfo[] SteamLibraries { get; }
-    public DirectoryInfo UserdataDirectory { get; }
-    public FileSystemInfo LoginusersFile { get; }
-    public FileSystemInfo ConfigFile { get; }
 
     private static DirectoryInfo GetGenuineInstallationPath()
     {

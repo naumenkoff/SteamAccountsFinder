@@ -4,14 +4,14 @@ namespace SteamAccountsFinder.Models.ValveRegistry;
 
 public class RegistryContent : ISteamID, IDetectedAccount
 {
+    public readonly string RegistryPath;
+
     private RegistryContent(string registryPath, string id)
     {
         Steam32 = long.Parse(id);
         Steam64 = ISteamID.GetSteam64(Steam32);
         RegistryPath = registryPath;
     }
-
-    public string RegistryPath { get; }
 
     public void Attach()
     {

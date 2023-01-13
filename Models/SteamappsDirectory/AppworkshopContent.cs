@@ -5,7 +5,12 @@ namespace SteamAccountsFinder.Models.SteamappsDirectory;
 
 public partial class AppworkshopContent : ISteamID, IDetectedAccount
 {
-    private AppworkshopContent(FileInfo appworkshop, Match match)
+    public readonly int AppID;
+    public readonly FileSystemInfo ContainingFile;
+
+    public readonly bool HasSubscriber;
+
+    private AppworkshopContent(FileSystemInfo appworkshop, Match match)
     {
         ContainingFile = appworkshop;
         AppID = int.Parse(match.Groups["name"].Value);
@@ -13,10 +18,6 @@ public partial class AppworkshopContent : ISteamID, IDetectedAccount
         Steam64 = ISteamID.GetSteam64(Steam32);
         HasSubscriber = true;
     }
-
-    public bool HasSubscriber { get; }
-    public FileInfo ContainingFile { get; }
-    public int AppID { get; }
 
     public void Attach()
     {
@@ -29,7 +30,7 @@ public partial class AppworkshopContent : ISteamID, IDetectedAccount
     public long Steam32 { get; }
     public long Steam64 { get; }
 
-    private static IDetectedAccount CreateIDetectedAccount(FileInfo appworkshop)
+    private static IDetectedAccount CreateIDetectedAccount(FileSystemInfo appworkshop)
     {
         if (LocationRecipient.TryReadFileContent(out var content, appworkshop) is false) return default;
 

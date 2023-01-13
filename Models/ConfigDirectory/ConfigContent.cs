@@ -5,14 +5,14 @@ namespace SteamAccountsFinder.Models.ConfigDirectory;
 
 public partial class ConfigContent : ISteamID, IDetectedAccount
 {
+    public readonly string Login;
+
     private ConfigContent(Match match)
     {
         Steam64 = long.Parse(match.Groups["id"].Value);
         Steam32 = ISteamID.GetSteam32(Steam64);
         Login = match.Groups["login"].Value;
     }
-
-    public string Login { get; }
 
     public void Attach()
     {

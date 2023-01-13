@@ -5,6 +5,10 @@ namespace SteamAccountsFinder.Models.ConfigDirectory;
 
 public partial class LoginusersContent : ISteamID, IDetectedAccount
 {
+    public readonly string Login;
+    public readonly string Name;
+    public readonly DateTimeOffset Timestamp;
+
     private LoginusersContent(Match match)
     {
         Steam64 = long.Parse(match.Groups["id"].Value);
@@ -14,10 +18,6 @@ public partial class LoginusersContent : ISteamID, IDetectedAccount
         var time = long.Parse(match.Groups["Timestamp"].Value);
         Timestamp = DateTimeOffset.FromUnixTimeSeconds(time).ToLocalTime();
     }
-
-    public string Login { get; }
-    public string Name { get; }
-    public DateTimeOffset Timestamp { get; }
 
     public void Attach()
     {

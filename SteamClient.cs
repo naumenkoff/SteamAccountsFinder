@@ -69,23 +69,17 @@ public class SteamClient
 
     public static DirectoryInfo GetSteamappsDirectory(DirectoryInfo steamLibraryPath)
     {
-        return LocationRecipient.DirectoryExists(steamLibraryPath)
-            ? LocationRecipient.GetDirectory(steamLibraryPath.FullName, "steamapps")
-            : default;
+        return LocationRecipient.GetDirectory(steamLibraryPath?.FullName, "steamapps");
     }
 
     public static DirectoryInfo GetWorkshopDirectory(DirectoryInfo steamappsDirectory)
     {
-        return LocationRecipient.DirectoryExists(steamappsDirectory)
-            ? LocationRecipient.GetDirectory(steamappsDirectory.FullName, "workshop")
-            : default;
+        return LocationRecipient.GetDirectory(steamappsDirectory?.FullName, "workshop");
     }
 
     private FileInfo GetLibraryfoldersFile()
     {
-        return LocationRecipient.DirectoryExists(_steamappsDirectory)
-            ? LocationRecipient.GetFile(_steamappsDirectory.FullName, "libraryfolders.vdf")
-            : default;
+        return LocationRecipient.GetFile(_steamappsDirectory?.FullName, "libraryfolders.vdf");
     }
 
     private DirectoryInfo[] GetSteamLibraries()

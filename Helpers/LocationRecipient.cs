@@ -33,6 +33,9 @@ public static class LocationRecipient
     public static bool TryReadFileContent(out string content, FileInfo file)
     {
         content = default;
+
+        if (FileExists(file) is false) return false;
+        
         try
         {
             content = File.ReadAllText(file.FullName);

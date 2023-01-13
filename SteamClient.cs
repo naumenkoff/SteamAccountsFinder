@@ -84,7 +84,6 @@ public class SteamClient
 
     private DirectoryInfo[] GetSteamLibraries()
     {
-        if (LocationRecipient.FileExists(_libraryfoldersFile) is false) return Array.Empty<DirectoryInfo>();
         if (LocationRecipient.TryReadFileContent(out var fileContent, _libraryfoldersFile) is false)
             return Array.Empty<DirectoryInfo>();
 

@@ -36,8 +36,6 @@ public partial class ConfigContent : ISteamID, IDetectedAccount
 
     public static Task<IDetectedAccount[]> GetIDetectedAccounts(SteamClient steamClient)
     {
-        if (LocationRecipient.FileExists(steamClient.ConfigFile) is false)
-            return Task.FromResult(Array.Empty<IDetectedAccount>());
         if (LocationRecipient.TryReadFileContent(out var content, steamClient.ConfigFile) is false)
             return Task.FromResult(Array.Empty<IDetectedAccount>());
 

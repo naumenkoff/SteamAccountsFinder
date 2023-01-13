@@ -32,8 +32,8 @@ public class RegistryContent : ISteamID, IDetectedAccount
 
     public static Task<IDetectedAccount[]> GetIDetectedAccounts()
     {
-        using var registryKey = Registry.CurrentUser.OpenSubKey("Software")?.OpenSubKey("Valve")?.OpenSubKey("Steam")
-            ?.OpenSubKey("Users");
+        using var registryKey = Registry.CurrentUser.OpenSubKey("Software")?.OpenSubKey("Valve")?
+            .OpenSubKey("Steam")?.OpenSubKey("Users");
         if (registryKey == default) return Task.FromResult(Array.Empty<IDetectedAccount>());
 
         var users = registryKey.GetSubKeyNames();

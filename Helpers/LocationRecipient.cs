@@ -20,22 +20,17 @@ public static class LocationRecipient
         return file;
     }
 
-    public static bool DirectoryExists(DirectoryInfo directory)
+    public static bool DirectoryExists(FileSystemInfo directory)
     {
         return directory?.Exists == true;
     }
 
-    public static bool FileExists(FileInfo file)
-    {
-        return file?.Exists == true;
-    }
-
-    public static bool TryReadFileContent(out string content, FileInfo file)
+    public static bool TryReadFileContent(out string content, FileSystemInfo file)
     {
         content = default;
 
-        if (FileExists(file) is false) return false;
-        
+        if (file?.Exists is false) return false;
+
         try
         {
             content = File.ReadAllText(file.FullName);

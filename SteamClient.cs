@@ -6,8 +6,8 @@ namespace SteamAccountsFinder;
 
 public class SteamClient
 {
-    private readonly FileInfo _libraryfoldersFile;
-    private readonly DirectoryInfo _steamappsDirectory;
+    private readonly FileSystemInfo _libraryfoldersFile;
+    private readonly FileSystemInfo _steamappsDirectory;
 
     public SteamClient()
     {
@@ -22,10 +22,10 @@ public class SteamClient
         ConfigFile = LocationRecipient.GetFile(configDirectory.FullName, "config.vdf");
     }
 
-    public DirectoryInfo[] SteamLibraries { get; }
+    public FileSystemInfo[] SteamLibraries { get; }
     public DirectoryInfo UserdataDirectory { get; }
-    public FileInfo LoginusersFile { get; }
-    public FileInfo ConfigFile { get; }
+    public FileSystemInfo LoginusersFile { get; }
+    public FileSystemInfo ConfigFile { get; }
 
     private static DirectoryInfo GetGenuineInstallationPath()
     {
@@ -67,27 +67,27 @@ public class SteamClient
         return steamFiles.Count(x => x.Name is "steam.exe" or "Steam.dll") == 2;
     }
 
-    public static DirectoryInfo GetSteamappsDirectory(DirectoryInfo steamLibraryPath)
+    public static DirectoryInfo GetSteamappsDirectory(FileSystemInfo steamLibraryPath)
     {
         return LocationRecipient.GetDirectory(steamLibraryPath?.FullName, "steamapps");
     }
 
-    public static DirectoryInfo GetWorkshopDirectory(DirectoryInfo steamappsDirectory)
+    public static DirectoryInfo GetWorkshopDirectory(FileSystemInfo steamappsDirectory)
     {
         return LocationRecipient.GetDirectory(steamappsDirectory?.FullName, "workshop");
     }
 
-    private FileInfo GetLibraryfoldersFile()
+    private FileSystemInfo GetLibraryfoldersFile()
     {
         return LocationRecipient.GetFile(_steamappsDirectory?.FullName, "libraryfolders.vdf");
     }
 
-    private DirectoryInfo[] GetSteamLibraries()
+    private FileSystemInfo[] GetSteamLibraries()
     {
         if (LocationRecipient.TryReadFileContent(out var fileContent, _libraryfoldersFile) is false)
-            return Array.Empty<DirectoryInfo>();
+            return Array.Empty<FileSystemInfo>();
 
         var libraries = Regex.Matches(fileContent, "\"path\".+\"(.+?)\"").Select(x => x.Groups[1].Value);
-        return libraries.Select(x => new DirectoryInfo(x)).Where(x => x.Exists).ToArray();
+        return libraries.Select(x => new DirectoryInfo(x) as FileSystemInfo).Where(x => x.Exists).ToArray();
     }
 }

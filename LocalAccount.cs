@@ -11,7 +11,6 @@ public class LocalAccount : ISteamID
     private static readonly List<LocalAccount> Container = new();
     private readonly List<AppmanifestContent> _dataFromAppmanifest;
     private readonly List<AppworkshopContent> _dataFromAppworkshop;
-    private readonly List<UserdataContent> _dataFromUserdata;
 
     private LocalAccount(ISteamID steamData)
     {
@@ -19,13 +18,12 @@ public class LocalAccount : ISteamID
         Steam64 = steamData.Steam64;
         _dataFromAppmanifest = new List<AppmanifestContent>();
         _dataFromAppworkshop = new List<AppworkshopContent>();
-        _dataFromUserdata = new List<UserdataContent>();
     }
 
     public static IEnumerable<LocalAccount> Accounts => Container;
     public IReadOnlyCollection<AppmanifestContent> DataFromAppmanifest => _dataFromAppmanifest;
     public IReadOnlyCollection<AppworkshopContent> DataFromAppWorkshop => _dataFromAppworkshop;
-    public IReadOnlyCollection<UserdataContent> DataFromUserdata => _dataFromUserdata;
+    public UserdataContent DataFromUserdata { get; private set; }
     public ConfigContent DataFromConfig { get; private set; }
     public LoginusersContent DataFromLoginusersContent { get; private set; }
     public RegistryContent DataFromRegistry { get; private set; }
@@ -52,7 +50,7 @@ public class LocalAccount : ISteamID
         else if (type == typeof(LoginusersContent)) DataFromLoginusersContent = account as LoginusersContent;
         else if (type == typeof(AppmanifestContent)) _dataFromAppmanifest.Add(account as AppmanifestContent);
         else if (type == typeof(AppworkshopContent)) _dataFromAppworkshop.Add(account as AppworkshopContent);
-        else if (type == typeof(UserdataContent)) _dataFromUserdata.Add(account as UserdataContent);
+        else if (type == typeof(UserdataContent)) DataFromUserdata = account as UserdataContent;
         else if (type == typeof(RegistryContent)) DataFromRegistry = account as RegistryContent;
 
         DetectionsCount++;

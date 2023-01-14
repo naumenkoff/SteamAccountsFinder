@@ -43,7 +43,7 @@ public partial class AppworkshopContent : ISteamID, IDetectedAccount
 
     public static Task<IDetectedAccount[]> GetIDetectedAccounts(DirectoryInfo workshop)
     {
-        if (LocationRecipient.DirectoryExists(workshop) is false)
+        if (LocationRecipient.FileSystemInfoExists(workshop) is false)
             return Task.FromResult(Array.Empty<IDetectedAccount>());
 
         var files = workshop.GetFiles();

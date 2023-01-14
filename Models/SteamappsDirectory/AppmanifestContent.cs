@@ -42,7 +42,7 @@ public partial class AppmanifestContent : ISteamID, IDetectedAccount
 
     public static Task<IDetectedAccount[]> GetIDetectedAccounts(DirectoryInfo steamApps)
     {
-        if (LocationRecipient.DirectoryExists(steamApps) is false)
+        if (LocationRecipient.FileSystemInfoExists(steamApps) is false)
             return Task.FromResult(Array.Empty<IDetectedAccount>());
 
         var files = steamApps.GetFiles();

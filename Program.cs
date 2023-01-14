@@ -1,8 +1,7 @@
 ﻿using SteamAccountsFinder;
 
-var steam = new SteamClient();
-var accountsFinder = new AccountsFinder(steam);
-await accountsFinder.InitializeAccounts();
+await SteamClient.InitializeAsync();
+await AccountsFinder.InitializeAccounts();
 foreach (var account in LocalAccount.Accounts)
 {
     Console.WriteLine(account.DetectionsCount + " " + account.Login);

@@ -34,9 +34,9 @@ public partial class ConfigContent : ISteamID, IDetectedAccount
         return account;
     }
 
-    public static Task<IDetectedAccount[]> GetIDetectedAccounts(SteamClient steamClient)
+    public static Task<IDetectedAccount[]> GetIDetectedAccounts()
     {
-        if (LocationRecipient.TryReadFileContent(out var content, steamClient.ConfigFile) is false)
+        if (LocationRecipient.TryReadFileContent(out var content, SteamClient.ConfigFile) is false)
             return Task.FromResult(Array.Empty<IDetectedAccount>());
 
         var accountsSection = Regex.Match(content, "(?<=\"Accounts\".+?{).+765.+?}", RegexOptions.Singleline).Value;

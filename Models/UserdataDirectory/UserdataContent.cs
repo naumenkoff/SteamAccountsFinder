@@ -30,12 +30,12 @@ public class UserdataContent : ISteamID, IDetectedAccount
         return account;
     }
 
-    public static Task<IDetectedAccount[]> GetIDetectedAccounts(SteamClient steamClient)
+    public static Task<IDetectedAccount[]> GetIDetectedAccounts()
     {
-        if (LocationRecipient.DirectoryExists(steamClient.UserdataDirectory) is false)
+        if (LocationRecipient.FileSystemInfoExists(SteamClient.UserdataDirectory) is false)
             return Task.FromResult(Array.Empty<IDetectedAccount>());
 
-        var directories = steamClient.UserdataDirectory.GetDirectories();
+        var directories = SteamClient.UserdataDirectory.GetDirectories();
         var accounts = directories.Select(CreateIDetectedAccount).ToArray();
         return Task.FromResult(accounts);
     }

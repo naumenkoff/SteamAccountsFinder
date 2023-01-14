@@ -4,63 +4,49 @@ using SteamAccountsFinder.Helpers;
 
 namespace SteamAccountsFinder;
 
-public class SteamClient
+public static class SteamClient
 {
-    private readonly FileSystemInfo _libraryfoldersFile;
-    private readonly FileSystemInfo _steamappsDirectory;
-    public readonly FileSystemInfo ConfigFile;
-    public readonly FileSystemInfo LoginusersFile;
-    public readonly FileSystemInfo[] SteamLibraries;
-    public readonly DirectoryInfo UserdataDirectory;
+    public static FileSystemInfo ConfigFile { get; private set; }
+    public static FileSystemInfo LoginusersFile { get; private set; }
+    public static FileSystemInfo[] SteamLibraries { get; private set; }
+    public static DirectoryInfo UserdataDirectory { get; private set; }
 
-    public SteamClient()
+    public static Task InitializeAsync()
     {
-        var installationDirectory = GetGenuineInstallationPath();
-        _steamappsDirectory = GetSteamappsDirectory(installationDirectory);
-        _libraryfoldersFile = GetLibraryfoldersFile();
-        SteamLibraries = GetSteamLibraries();
+        return Task.Run(() =>
+        {
+            var installationDirectory = GetGenuineInstallationPath();
+            var steamappsDirectory = GetSteamappsDirectory(installationDirectory);
+            var libraryfoldersFile = LocationRecipient.GetFile(steamappsDirectory?.FullName, "libraryfolders.vdf");
+            var configDirectory = LocationRecipient.GetDirectory(installationDirectory.FullName, "config");
 
-        UserdataDirectory = LocationRecipient.GetDirectory(installationDirectory.FullName, "userdata");
-        var configDirectory = LocationRecipient.GetDirectory(installationDirectory.FullName, "config");
-        LoginusersFile = LocationRecipient.GetFile(configDirectory.FullName, "loginusers.vdf");
-        ConfigFile = LocationRecipient.GetFile(configDirectory.FullName, "config.vdf");
+            SteamLibraries = GetSteamLibraries(libraryfoldersFile);
+            UserdataDirectory = LocationRecipient.GetDirectory(installationDirectory.FullName, "userdata");
+            LoginusersFile = LocationRecipient.GetFile(configDirectory.FullName, "loginusers.vdf");
+            ConfigFile = LocationRecipient.GetFile(configDirectory.FullName, "config.vdf");
+        });
     }
 
     private static DirectoryInfo GetGenuineInstallationPath()
     {
-        if (TryGetInstallPathFromRegistry(out var installPathFromRegistry))
-            if (IsClientGenuine(installPathFromRegistry))
-                return installPathFromRegistry;
-
-        // is this a weird method? Ofc, no.
-        // Here you can add your own methods for getting Steam client paths.
-        // For example, by reading the value from app.config,
-        // so you will get two checks and you will be able to throw an exception
-        // that all the paths that you found are not valid.
+        var registryPath = GetInstallPathFromRegistry();
+        if (IsClientGenuine(registryPath)) return registryPath;
 
         throw new DirectoryNotFoundException("The Steam installation path from the registry isn't genuine!");
     }
 
-    private static bool TryGetInstallPathFromRegistry(out DirectoryInfo steamClientDirectory)
+    private static DirectoryInfo GetInstallPathFromRegistry()
     {
         using var steam = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64)
             .OpenSubKey("SOFTWARE")?.OpenSubKey("WOW6432Node")?
             .OpenSubKey("Valve")?.OpenSubKey("Steam");
-
         var path = steam?.GetValue("InstallPath")?.ToString();
-        if (string.IsNullOrEmpty(path))
-        {
-            steamClientDirectory = default;
-            return false;
-        }
-
-        steamClientDirectory = new DirectoryInfo(path);
-        return true;
+        return string.IsNullOrEmpty(path) ? default : new DirectoryInfo(path);
     }
 
     private static bool IsClientGenuine(DirectoryInfo directory)
     {
-        if (LocationRecipient.DirectoryExists(directory) is false) return false;
+        if (LocationRecipient.FileSystemInfoExists(directory) is false) return false;
 
         var steamFiles = directory.GetFiles();
         return steamFiles.Count(x => x.Name is "steam.exe" or "Steam.dll") == 2;
@@ -76,14 +62,9 @@ public class SteamClient
         return LocationRecipient.GetDirectory(steamappsDirectory?.FullName, "workshop");
     }
 
-    private FileSystemInfo GetLibraryfoldersFile()
+    private static FileSystemInfo[] GetSteamLibraries(FileSystemInfo libraryfoldersFile)
     {
-        return LocationRecipient.GetFile(_steamappsDirectory?.FullName, "libraryfolders.vdf");
-    }
-
-    private FileSystemInfo[] GetSteamLibraries()
-    {
-        if (LocationRecipient.TryReadFileContent(out var fileContent, _libraryfoldersFile) is false)
+        if (LocationRecipient.TryReadFileContent(out var fileContent, libraryfoldersFile) is false)
             return Array.Empty<FileSystemInfo>();
 
         var libraries = Regex.Matches(fileContent, "\"path\".+\"(.+?)\"").Select(x => x.Groups[1].Value);

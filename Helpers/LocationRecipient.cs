@@ -4,7 +4,7 @@ public static class LocationRecipient
 {
     public static DirectoryInfo GetDirectory(params string[] paths)
     {
-        if (paths.Any(x => x == default)) return default;
+        if (paths.Any(string.IsNullOrEmpty)) return default;
 
         var path = Path.Combine(paths);
         var directory = new DirectoryInfo(path);
@@ -13,23 +13,23 @@ public static class LocationRecipient
 
     public static FileInfo GetFile(params string[] paths)
     {
-        if (paths.Any(x => x == default)) return default;
+        if (paths.Any(string.IsNullOrEmpty)) return default;
 
         var path = Path.Combine(paths);
         var file = new FileInfo(path);
         return file;
     }
 
-    public static bool DirectoryExists(FileSystemInfo directory)
+    public static bool FileSystemInfoExists(FileSystemInfo fileSystemInfo)
     {
-        return directory?.Exists == true;
+        return fileSystemInfo is { Exists: true };
     }
 
     public static bool TryReadFileContent(out string content, FileSystemInfo file)
     {
         content = default;
 
-        if (file?.Exists is false) return false;
+        if (FileSystemInfoExists(file) is false) return false;
 
         try
         {

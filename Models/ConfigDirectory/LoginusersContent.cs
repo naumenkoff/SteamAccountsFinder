@@ -39,9 +39,9 @@ public partial class LoginusersContent : ISteamID, IDetectedAccount
         return account;
     }
 
-    public static Task<IDetectedAccount[]> GetIDetectedAccounts(SteamClient steamClient)
+    public static Task<IDetectedAccount[]> GetIDetectedAccounts()
     {
-        if (LocationRecipient.TryReadFileContent(out var content, steamClient.LoginusersFile) is false)
+        if (LocationRecipient.TryReadFileContent(out var content, SteamClient.LoginusersFile) is false)
             return Task.FromResult(Array.Empty<IDetectedAccount>());
 
         var matches = Regex.Matches(content, ".\"765.+?\".+?{.+?}", RegexOptions.Singleline).Cast<Match>();

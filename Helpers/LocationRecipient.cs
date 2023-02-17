@@ -4,7 +4,7 @@ public static class LocationRecipient
 {
     public static DirectoryInfo GetDirectory(params string[] paths)
     {
-        if (paths.Any(string.IsNullOrEmpty)) return default;
+        if (paths.Any(string.IsNullOrEmpty)) return null;
 
         var path = Path.Combine(paths);
         var directory = new DirectoryInfo(path);
@@ -13,7 +13,7 @@ public static class LocationRecipient
 
     public static FileInfo GetFile(params string[] paths)
     {
-        if (paths.Any(string.IsNullOrEmpty)) return default;
+        if (paths.Any(string.IsNullOrEmpty)) return null;
 
         var path = Path.Combine(paths);
         var file = new FileInfo(path);
@@ -25,20 +25,20 @@ public static class LocationRecipient
         return fileSystemInfo is { Exists: true };
     }
 
-    public static bool TryReadFileContent(out string content, FileSystemInfo file)
+    public static async Task<string> ReadFileContentAsync(FileInfo file)
     {
-        content = default;
-
-        if (FileSystemInfoExists(file) is false) return false;
+        if (FileSystemInfoExists(file) is false) return null;
 
         try
         {
-            content = File.ReadAllText(file.FullName);
-            return true;
+            await using var stream = file.OpenRead();
+            using var streamReader = new StreamReader(stream);
+            var content = await streamReader.ReadToEndAsync();
+            return content;
         }
         catch
         {
-            return false;
+            return null;
         }
     }
 }
